@@ -6,14 +6,14 @@ This project is a single-file Q*bert-lite clone using **Pygame**. It introduces 
 
 ## What's Provided
 
-A working Q*bert-lite game with:
+The completed Q*bert-lite game includes:
 
 - A pyramid of cubes the player hops across diagonally, painting each cube toward its target color on landing
 - Coily, an enemy that chases the player across the pyramid, and red balls that roll downward
 - Falling off the edge of the pyramid (or bumping an enemy while grounded) costs a life
 - Levels, lives, and scoring, with a win once every cube reaches its target color
 
-It has **one deliberate bug** and **three optional features** left as empty functions. You are expected to **analyze**, **interact with an AI assistant**, and **complete/fix** the game to make it fully functional and more interesting.
+The projection bug has been fixed, and the optional palette, cube-completion flash, and bonus-life features are implemented. The original lab tasks are retained below as a record of the assignment.
 
 ### **Use an LLM (e.g. ChatGPT or Claude) as your debugging and pair-programming partner for this lab.**
 
@@ -24,10 +24,12 @@ It has **one deliberate bug** and **three optional features** left as empty func
 ### Setup
 
 1. Make sure you have Python 3.10+ installed.
-2. Install dependencies:
+2. Install dependencies in a virtual environment. On macOS with Python 3.14, use pygame-ce (it imports as `pygame`):
 
 ```bash
-pip install pygame
+python3 -m venv .venv
+source .venv/bin/activate
+python -m pip install pygame-ce
 ```
 
 3. Run the game:
@@ -89,3 +91,19 @@ Submission is only the following three things:
 - [] A 10-second video of gameplay **before** your changes, showing the bug/broken behavior
 - [] A 10-second video of gameplay **after** your changes, showing the bug fixed and the new features working
 - [] The Chat/LLM used page link, with the complete chat history
+
+
+## Completed work
+
+- Fixed the isometric pyramid projection by using true division (`row / 2`) for the row offset, keeping odd and even rows centered symmetrically.
+- Added three level palettes, cycling as the player advances.
+- Added a short flash when a cube first reaches its target color.
+- Set the extra-life threshold to 1,000 points.
+- Kept Coily's existing move selection, which chooses a neighboring cube closer to the player's position.
+
+## Gameplay recordings
+
+- `qbert_before.mov` shows the original projection bug.
+- `qbert_after.mov` shows the repaired game and gameplay.
+
+Run with `python game.py` from this folder (after activating the virtual environment).
