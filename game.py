@@ -1,5 +1,6 @@
 import random
 import pygame
+import time
 
 WIDTH, HEIGHT, CUBE_W, CUBE_H = 720, 560, 72, 42
 SIDE = 21
@@ -10,23 +11,31 @@ DEFAULT_PALETTE = [(90, 160, 220), (190, 120, 70), (100, 210, 140)]
 KEY_HOPS = {pygame.K_LEFT: (-1, -1), pygame.K_UP: (-1, 0), pygame.K_DOWN: (1, 0), pygame.K_RIGHT: (1, 1)}
 
 
+LEVEL_PALETTES = [
+    [(55, 145, 190), (245, 165, 65), (120, 225, 185)],
+    [(80, 120, 210), (220, 120, 170), (255, 210, 90)],
+    [(70, 170, 150), (235, 135, 65), (240, 235, 170)],
+]
+COMPLETION_FLASHES = {}
+
+
 def cube_palette(level):
-    """Return a list of TARGET + 1 (r, g, b) colours for the cube stages, or None for the default."""
-    pass
+    """Return three stage colours, cycling palettes on higher levels."""
+    return LEVEL_PALETTES[(level - 1) % len(LEVEL_PALETTES)]
 
 
 def on_cube_completed(cell):
-    """Called when a cube first reaches its target colour; add a flash, sound, or bonus here."""
-    pass
+    """Record a short visual flash for the cube that just reached its target."""
+    COMPLETION_FLASHES[cell] = time.monotonic()
 
 
 def bonus_life_threshold():
-    """Return a score value at which the player earns an extra life, or None to disable bonus lives."""
-    pass
+    """Award one extra life for each 1,000-point threshold crossed."""
+    return 1000
 
 
 def cube_center(row, col):
-    return pygame.Vector2(WIDTH / 2 + (col - row // 2) * CUBE_W, 90 + row * CUBE_H)
+    return pygame.Vector2(WIDTH / 2 + (col - row / 2) * CUBE_W, 90 + row * CUBE_H)
 
 
 def neighbors(row, col):
@@ -173,6 +182,17 @@ class Game:
         pygame.draw.polygon(screen, shade(DEFAULT_PALETTE[0], 0.3), right)
         pygame.draw.polygon(screen, color, top)
         pygame.draw.polygon(screen, (240, 240, 240), top, 1)
+        flashed_at = COMPLETION_FLASHES.get(cell)
+        if flashed_at is not None:
+            age = time.monotonic() - flashed_at
+            if age >= 0.45:
+                COMPLETION_FLASHES.pop(cell, None)
+            else:
+                radius = int(12 + 30 * age / 0.45)
+                alpha = int(255 * (1 - age / 0.45))
+                flash = pygame.Surface((CUBE_W + 64, CUBE_H + 64), pygame.SRCALPHA)
+                pygame.draw.circle(flash, (255, 255, 220, alpha), (flash.get_width() // 2, flash.get_height() // 2), radius, 3)
+                screen.blit(flash, (cx - flash.get_width() // 2, cy - flash.get_height() // 2))
 
     def draw(self, screen):
         screen.fill((18, 20, 38))
